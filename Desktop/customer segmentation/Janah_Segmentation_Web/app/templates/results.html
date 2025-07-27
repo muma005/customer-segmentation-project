@@ -13,13 +13,14 @@
     </p>
 </div>
 
+{% if analysis_summary %}
 <!-- Summary Statistics -->
 <div class="row mb-4">
     <div class="col-md-3">
         <div class="card border-0 shadow-sm text-center">
             <div class="card-body">
                 <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                <h4 class="fw-bold text-primary">4</h4>
+                <h4 class="fw-bold text-primary">{{ analysis_summary.num_clusters }}</h4>
                 <p class="text-muted mb-0">Customer Segments</p>
             </div>
         </div>
@@ -28,7 +29,7 @@
         <div class="card border-0 shadow-sm text-center">
             <div class="card-body">
                 <i class="fas fa-database fa-2x text-success mb-2"></i>
-                <h4 class="fw-bold text-success">2,850</h4>
+                <h4 class="fw-bold text-success">{{ analysis_summary.total_customers }}</h4>
                 <p class="text-muted mb-0">Total Customers</p>
             </div>
         </div>
@@ -37,17 +38,17 @@
         <div class="card border-0 shadow-sm text-center">
             <div class="card-body">
                 <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
-                <h4 class="fw-bold text-info">85.2%</h4>
-                <p class="text-muted mb-0">Model Accuracy</p>
+                <h4 class="fw-bold text-info">{{ "%.1f"|format(analysis_summary.avg_recency) }}</h4>
+                <p class="text-muted mb-0">Avg Recency (days)</p>
             </div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="card border-0 shadow-sm text-center">
             <div class="card-body">
-                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
-                <h4 class="fw-bold text-warning">2.3s</h4>
-                <p class="text-muted mb-0">Analysis Time</p>
+                <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
+                <h4 class="fw-bold text-warning">${{ "%.0f"|format(analysis_summary.avg_monetary) }}</h4>
+                <p class="text-muted mb-0">Avg Monetary</p>
             </div>
         </div>
     </div>
@@ -69,7 +70,7 @@
                     <div class="text-center text-muted">
                         <i class="fas fa-chart-pie fa-3x mb-3"></i>
                         <p>Segment distribution chart will be displayed here</p>
-                        <small>Interactive visualization coming in Phase 3</small>
+                        <small>Interactive visualization coming in Phase 5</small>
                     </div>
                 </div>
             </div>
@@ -91,7 +92,7 @@
                         <div class="progress mb-2">
                             <div class="progress-bar bg-primary" style="width: 75%"></div>
                         </div>
-                        <small class="text-muted">Average: 45 days</small>
+                        <small class="text-muted">Average: {{ "%.0f"|format(analysis_summary.avg_recency) }} days</small>
                     </div>
                     <div class="col-md-4">
                         <h6 class="fw-bold text-success">Frequency</h6>
@@ -99,7 +100,7 @@
                         <div class="progress mb-2">
                             <div class="progress-bar bg-success" style="width: 60%"></div>
                         </div>
-                        <small class="text-muted">Average: 12 transactions</small>
+                        <small class="text-muted">Average: {{ "%.0f"|format(analysis_summary.avg_frequency) }} transactions</small>
                     </div>
                     <div class="col-md-4">
                         <h6 class="fw-bold text-info">Monetary</h6>
@@ -107,7 +108,7 @@
                         <div class="progress mb-2">
                             <div class="progress-bar bg-info" style="width: 85%"></div>
                         </div>
-                        <small class="text-muted">Average: $1,250</small>
+                        <small class="text-muted">Average: ${{ "%.0f"|format(analysis_summary.avg_monetary) }}</small>
                     </div>
                 </div>
             </div>
@@ -128,45 +129,29 @@
                             <tr>
                                 <th>Segment</th>
                                 <th>Size</th>
-                                <th>Avg. Recency</th>
-                                <th>Avg. Frequency</th>
-                                <th>Avg. Monetary</th>
+                                <th>Percentage</th>
                                 <th>Characteristics</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for cluster, size in analysis_summary.cluster_sizes.items() %}
                             <tr>
-                                <td><span class="badge bg-primary">Loyal Customers</span></td>
-                                <td>712 (25%)</td>
-                                <td>15 days</td>
-                                <td>25 transactions</td>
-                                <td>$2,500</td>
-                                <td>High value, frequent buyers</td>
+                                <td><span class="badge bg-primary">Cluster {{ cluster }}</span></td>
+                                <td>{{ size }}</td>
+                                <td>{{ "%.1f"|format(size / analysis_summary.total_customers * 100) }}%</td>
+                                <td>
+                                    {% if cluster == '0' %}
+                                        High value, frequent buyers
+                                    {% elif cluster == '1' %}
+                                        Consistent, moderate value
+                                    {% elif cluster == '2' %}
+                                        Declining engagement
+                                    {% else %}
+                                        Low engagement, need reactivation
+                                    {% endif %}
+                                </td>
                             </tr>
-                            <tr>
-                                <td><span class="badge bg-success">Regular Customers</span></td>
-                                <td>855 (30%)</td>
-                                <td>30 days</td>
-                                <td>15 transactions</td>
-                                <td>$1,200</td>
-                                <td>Consistent, moderate value</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge bg-warning">At-Risk Customers</span></td>
-                                <td>570 (20%)</td>
-                                <td>60 days</td>
-                                <td>8 transactions</td>
-                                <td>$800</td>
-                                <td>Declining engagement</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge bg-danger">Inactive Customers</span></td>
-                                <td>713 (25%)</td>
-                                <td>120 days</td>
-                                <td>3 transactions</td>
-                                <td>$300</td>
-                                <td>Low engagement, need reactivation</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -210,10 +195,9 @@
             <div class="card-body">
                 <label for="segmentSelect" class="form-label fw-bold">Select Segment:</label>
                 <select class="form-select mb-3" id="segmentSelect">
-                    <option value="loyal">Loyal Customers</option>
-                    <option value="regular">Regular Customers</option>
-                    <option value="at-risk">At-Risk Customers</option>
-                    <option value="inactive">Inactive Customers</option>
+                    {% for cluster in analysis_summary.cluster_sizes.keys() %}
+                    <option value="{{ cluster }}">Cluster {{ cluster }}</option>
+                    {% endfor %}
                 </select>
                 <button class="btn btn-warning w-100" onclick="previewCampaign()">
                     <i class="fas fa-eye me-2"></i>Preview Campaign
@@ -231,13 +215,34 @@
             </div>
             <div class="card-body">
                 <p class="mb-2"><strong>Dataset:</strong> Online Retail (UCI)</p>
-                <p class="mb-2"><strong>Clusters:</strong> 4 segments</p>
+                <p class="mb-2"><strong>Clusters:</strong> {{ analysis_summary.num_clusters }} segments</p>
                 <p class="mb-2"><strong>Method:</strong> K-means + RFM</p>
-                <p class="mb-0"><strong>Date:</strong> July 27, 2025</p>
+                <p class="mb-0"><strong>Date:</strong> {{ analysis_summary.timestamp[:10] if analysis_summary.timestamp else 'N/A' }}</p>
             </div>
         </div>
     </div>
 </div>
+
+{% else %}
+<!-- No Results Available -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-chart-bar fa-4x text-muted mb-4"></i>
+                <h3 class="text-muted mb-3">No Analysis Results Available</h3>
+                <p class="text-muted mb-4">
+                    No segmentation analysis has been completed yet. 
+                    Please run an analysis from the Segmentation page to view results.
+                </p>
+                <a href="{{ url_for('main.segmentation') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-play me-2"></i>Run Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -257,13 +262,13 @@ function shareResults() {
 function previewCampaign() {
     const segment = document.getElementById('segmentSelect').value;
     const campaigns = {
-        'loyal': 'Exclusive VIP offer: 15% off next purchase + free shipping',
-        'regular': 'Special discount: 10% off on orders over $100',
-        'at-risk': 'We miss you! 20% off to welcome you back',
-        'inactive': 'Reactivation offer: 25% off + free gift with purchase'
+        '0': 'Exclusive VIP offer: 15% off next purchase + free shipping',
+        '1': 'Special discount: 10% off on orders over $100',
+        '2': 'We miss you! 20% off to welcome you back',
+        '3': 'Reactivation offer: 25% off + free gift with purchase'
     };
     
-    alert(`Campaign for ${segment} customers:\n\n${campaigns[segment]}`);
+    alert(`Campaign for Cluster ${segment} customers:\n\n${campaigns[segment] || 'Custom campaign for this segment'}`);
 }
 
 // Page load alert (as requested)

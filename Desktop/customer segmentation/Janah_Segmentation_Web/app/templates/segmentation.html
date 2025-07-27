@@ -14,8 +14,9 @@
 </div>
 
 <div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="card border-0 shadow-sm">
+    <div class="col-lg-4">
+        <!-- Configuration Panel -->
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0">
                     <i class="fas fa-cog me-2"></i>
@@ -67,25 +68,23 @@
                             <i class="fas fa-sliders-h me-2"></i>
                             Segmentation Parameters
                         </h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="numClusters" class="form-label fw-bold">Number of Clusters</label>
-                                <select class="form-select" id="numClusters" name="numClusters">
-                                    <option value="3">3 Segments</option>
-                                    <option value="4" selected>4 Segments</option>
-                                    <option value="5">5 Segments</option>
-                                    <option value="6">6 Segments</option>
-                                </select>
-                                <div class="form-text">Recommended: 4 segments for optimal analysis</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="analysisType" class="form-label fw-bold">Analysis Type</label>
-                                <select class="form-select" id="analysisType" name="analysisType">
-                                    <option value="rfm" selected>RFM Analysis</option>
-                                    <option value="custom">Custom Features</option>
-                                </select>
-                                <div class="form-text">RFM: Recency, Frequency, Monetary</div>
-                            </div>
+                        <div class="mb-3">
+                            <label for="numClusters" class="form-label fw-bold">Number of Clusters</label>
+                            <select class="form-select" id="numClusters" name="numClusters">
+                                <option value="3">3 Segments</option>
+                                <option value="4" selected>4 Segments</option>
+                                <option value="5">5 Segments</option>
+                                <option value="6">6 Segments</option>
+                            </select>
+                            <div class="form-text">Recommended: 4 segments for optimal analysis</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="analysisType" class="form-label fw-bold">Analysis Type</label>
+                            <select class="form-select" id="analysisType" name="analysisType">
+                                <option value="rfm" selected>RFM Analysis</option>
+                                <option value="custom">Custom Features</option>
+                            </select>
+                            <div class="form-text">RFM: Recency, Frequency, Monetary</div>
                         </div>
                     </div>
 
@@ -95,29 +94,27 @@
                             <i class="fas fa-tools me-2"></i>
                             Advanced Options
                         </h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="removeOutliers" name="removeOutliers" checked>
-                                    <label class="form-check-label" for="removeOutliers">
-                                        Remove Outliers (IQR Method)
-                                    </label>
-                                </div>
+                        <div class="mb-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="removeOutliers" name="removeOutliers" checked>
+                                <label class="form-check-label" for="removeOutliers">
+                                    Remove Outliers (IQR Method)
+                                </label>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="normalizeData" name="normalizeData" checked>
-                                    <label class="form-check-label" for="normalizeData">
-                                        Normalize Data (StandardScaler)
-                                    </label>
-                                </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="normalizeData" name="normalizeData" checked>
+                                <label class="form-check-label" for="normalizeData">
+                                    Normalize Data (StandardScaler)
+                                </label>
                             </div>
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-lg me-3" id="runAnalysisBtn">
+                        <button type="button" class="btn btn-primary btn-lg me-3" id="runAnalysisBtn" onclick="runAnalysis()">
                             <i class="fas fa-play me-2"></i>Run Analysis
                         </button>
                         <button type="button" class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
@@ -128,8 +125,8 @@
             </div>
         </div>
 
-        <!-- Progress Section (Hidden by default) -->
-        <div class="card border-0 shadow-sm mt-4" id="progressSection" style="display: none;">
+        <!-- Progress Section -->
+        <div class="card border-0 shadow-sm" id="progressSection" style="display: none;">
             <div class="card-header bg-success text-white">
                 <h4 class="mb-0">
                     <i class="fas fa-spinner fa-spin me-2"></i>
@@ -142,6 +139,42 @@
                          role="progressbar" style="width: 0%" id="progressBar">0%</div>
                 </div>
                 <p class="text-muted mb-0" id="progressText">Initializing analysis...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Streamlit App Container -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Analysis Results
+                </h4>
+            </div>
+            <div class="card-body p-0">
+                <div id="streamlitContainer" style="height: 600px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                        <p>Analysis results will appear here</p>
+                        <small>Click "Run Analysis" to start the segmentation process</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="card border-0 shadow-sm mt-4" id="resultsSummary" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Analysis Complete
+                </h4>
+            </div>
+            <div class="card-body">
+                <div id="summaryContent">
+                    <!-- Summary content will be populated by JavaScript -->
+                </div>
             </div>
         </div>
     </div>
@@ -171,48 +204,177 @@ document.querySelectorAll('input[name="dataSource"]').forEach(radio => {
     });
 });
 
-// Form submission
-document.getElementById('segmentationForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
+// Run analysis function
+function runAnalysis() {
     // Show progress section
     document.getElementById('progressSection').style.display = 'block';
     document.getElementById('runAnalysisBtn').disabled = true;
     
-    // Simulate progress (will be replaced with actual progress in Phase 3)
+    // Get form data
+    const formData = new FormData(document.getElementById('segmentationForm'));
+    
+    // Start progress simulation
     let progress = 0;
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     
-    const interval = setInterval(() => {
-        progress += 10;
+    const progressInterval = setInterval(() => {
+        progress += 5;
         progressBar.style.width = progress + '%';
         progressBar.textContent = progress + '%';
         
-        if (progress >= 100) {
-            clearInterval(interval);
-            progressText.textContent = 'Analysis complete! Redirecting to results...';
-            setTimeout(() => {
-                window.location.href = "{{ url_for('main.results') }}";
-            }, 1000);
-        } else if (progress < 30) {
+        if (progress < 20) {
+            progressText.textContent = 'Preparing analysis...';
+        } else if (progress < 40) {
             progressText.textContent = 'Loading and cleaning data...';
         } else if (progress < 60) {
             progressText.textContent = 'Calculating RFM metrics...';
-        } else if (progress < 90) {
+        } else if (progress < 80) {
             progressText.textContent = 'Running clustering analysis...';
         } else {
             progressText.textContent = 'Generating visualizations...';
         }
     }, 200);
-});
+    
+    // Send analysis request
+    fetch('/run_segmentation', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            progressText.textContent = 'Analysis started successfully!';
+            
+            // Poll for progress updates
+            pollAnalysisProgress(progressInterval);
+        } else {
+            clearInterval(progressInterval);
+            progressText.textContent = 'Analysis failed: ' + data.error;
+            document.getElementById('runAnalysisBtn').disabled = false;
+        }
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        progressText.textContent = 'Error: ' + error.message;
+        document.getElementById('runAnalysisBtn').disabled = false;
+    });
+}
+
+// Poll for analysis progress
+function pollAnalysisProgress(progressInterval) {
+    const progressText = document.getElementById('progressText');
+    const progressBar = document.getElementById('progressBar');
+    
+    const pollInterval = setInterval(() => {
+        fetch('/api/analysis-progress')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                clearInterval(pollInterval);
+                clearInterval(progressInterval);
+                
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                progressText.textContent = 'Analysis completed successfully!';
+                
+                // Show results
+                showResults(data.summary);
+                
+                // Hide progress after delay
+                setTimeout(() => {
+                    document.getElementById('progressSection').style.display = 'none';
+                    document.getElementById('runAnalysisBtn').disabled = false;
+                }, 2000);
+                
+            } else if (data.status === 'processing') {
+                progressBar.style.width = data.progress + '%';
+                progressBar.textContent = data.progress + '%';
+                progressText.textContent = data.message;
+            }
+        })
+        .catch(error => {
+            console.error('Error polling progress:', error);
+        });
+    }, 2000);
+}
+
+// Show results
+function showResults(summary) {
+    const resultsDiv = document.getElementById('resultsSummary');
+    const summaryContent = document.getElementById('summaryContent');
+    
+    if (summary) {
+        summaryContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-primary">${summary.total_customers}</h5>
+                        <p class="text-muted">Total Customers</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-success">${summary.num_clusters}</h5>
+                        <p class="text-muted">Clusters</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-info">${summary.avg_recency.toFixed(1)}</h5>
+                        <p class="text-muted">Avg Recency (days)</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-warning">$${summary.avg_monetary.toFixed(0)}</h5>
+                        <p class="text-muted">Avg Monetary</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <h6>Cluster Distribution:</h6>
+                <ul class="list-unstyled">
+                    ${Object.entries(summary.cluster_sizes).map(([cluster, size]) => 
+                        `<li><strong>Cluster ${cluster}:</strong> ${size} customers</li>`
+                    ).join('')}
+                </ul>
+            </div>
+        `;
+    } else {
+        summaryContent.innerHTML = '<p class="text-muted">Analysis completed successfully!</p>';
+    }
+    
+    resultsDiv.style.display = 'block';
+    
+    // Update streamlit container
+    const streamlitContainer = document.getElementById('streamlitContainer');
+    streamlitContainer.innerHTML = `
+        <div class="text-center text-success">
+            <i class="fas fa-check-circle fa-3x mb-3"></i>
+            <p>Analysis completed successfully!</p>
+            <small>Results have been saved to data/processed/</small>
+        </div>
+    `;
+}
 
 function resetForm() {
     document.getElementById('segmentationForm').reset();
     document.getElementById('fileUploadSection').style.display = 'none';
     document.getElementById('fileInfo').innerHTML = '';
     document.getElementById('progressSection').style.display = 'none';
+    document.getElementById('resultsSummary').style.display = 'none';
     document.getElementById('runAnalysisBtn').disabled = false;
+    
+    // Reset streamlit container
+    const streamlitContainer = document.getElementById('streamlitContainer');
+    streamlitContainer.innerHTML = `
+        <div class="text-center text-muted">
+            <i class="fas fa-chart-pie fa-3x mb-3"></i>
+            <p>Analysis results will appear here</p>
+            <small>Click "Run Analysis" to start the segmentation process</small>
+        </div>
+    `;
 }
 </script>
 {% endblock %}
