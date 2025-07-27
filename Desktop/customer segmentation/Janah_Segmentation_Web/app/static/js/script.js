@@ -1,303 +1,465 @@
-// Janah Customer Segmentation - JavaScript Functions
+// Janah Customer Segmentation - Main JavaScript
 
-// Global variables
-let currentPage = window.location.pathname;
-
-// ===== PAGE LOAD FUNCTIONS =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Janah Segmentation App Loaded Successfully!');
+    console.log('🚀 Janah Segmentation Web App loaded successfully!');
     
-    // Show welcome alert on home page
-    if (currentPage === '/' || currentPage === '/home') {
-        showWelcomeAlert();
+    // Initialize components
+    initializeFileUpload();
+    initializeDataSourceToggle();
+    initializeProgressTracking();
+    initializeNotifications();
+    
+    // Add page-specific functionality
+    const currentPage = window.location.pathname;
+    if (currentPage.includes('segmentation')) {
+        initializeSegmentationPage();
+    } else if (currentPage.includes('results')) {
+        initializeResultsPage();
     }
-    
-    // Initialize page-specific functions
-    initializePageFunctions();
-    
-    // Add fade-in animation to cards
-    addFadeInAnimation();
-    
-    // Initialize tooltips
-    initializeTooltips();
-    
-    // Add smooth scrolling
-    addSmoothScrolling();
 });
 
-// ===== WELCOME ALERT =====
-function showWelcomeAlert() {
-    setTimeout(() => {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-info alert-dismissible fade show position-fixed';
-        alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 1050; max-width: 300px;';
-        alertDiv.innerHTML = `
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>Welcome!</strong> Ready to analyze your customers?
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(alertDiv);
-        
-        // Auto-dismiss after 5 seconds
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
-    }, 1000);
-}
-
-// ===== PAGE INITIALIZATION =====
-function initializePageFunctions() {
-    // File upload validation
-    const fileInput = document.getElementById('file');
-    if (fileInput) {
-        fileInput.addEventListener('change', validateFileUpload);
-    }
+// File Upload Handling
+function initializeFileUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileLabel = document.getElementById('fileLabel');
     
-    // Form validation
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', validateForm);
-    });
+    if (!fileInput || !uploadArea) return;
     
-    // Navigation highlighting
-    highlightCurrentNavItem();
-    
-    // Initialize charts if on results page
-    if (currentPage === '/results') {
-        initializeCharts();
-    }
-}
-
-// ===== FILE UPLOAD VALIDATION =====
-function validateFileUpload(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const allowedTypes = ['.csv', '.xlsx', '.xls'];
-        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-        
-        if (!allowedTypes.includes(fileExtension)) {
-            showNotification('Please select a valid file type (CSV, XLSX, or XLS)', 'error');
-            e.target.value = '';
-            return false;
-        }
-        
-        if (file.size > 16 * 1024 * 1024) { // 16MB limit
-            showNotification('File size must be less than 16MB', 'error');
-            e.target.value = '';
-            return false;
-        }
-        
-        showNotification(`File "${file.name}" selected successfully!`, 'success');
-        return true;
-    }
-    return false;
-}
-
-// ===== FORM VALIDATION =====
-function validateForm(e) {
-    const form = e.target;
-    const requiredFields = form.querySelectorAll('[required]');
-    let isValid = true;
-    
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            field.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            field.classList.remove('is-invalid');
-        }
-    });
-    
-    if (!isValid) {
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
-        showNotification('Please fill in all required fields', 'error');
-    }
+        uploadArea.classList.add('dragover');
+    });
     
-    return isValid;
-}
-
-// ===== NAVIGATION FUNCTIONS =====
-function highlightCurrentNavItem() {
-    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-    navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active');
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelection(files[0]);
+        }
+    });
+    
+    // Click to upload
+    uploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // File selection
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            handleFileSelection(e.target.files[0]);
         }
     });
 }
 
-// ===== CHART INITIALIZATION =====
-function initializeCharts() {
-    const container = document.querySelector('.chart-container');
-    if (container) {
-        // Placeholder for chart initialization
-        container.innerHTML = `
-            <div class="text-center text-muted">
-                <i class="fas fa-chart-pie fa-3x mb-3"></i>
-                <p>Interactive charts will be displayed here</p>
-                <small>Real visualizations coming in Phase 3</small>
-            </div>
+function handleFileSelection(file) {
+    const fileLabel = document.getElementById('fileLabel');
+    const uploadArea = document.getElementById('uploadArea');
+    
+    if (fileLabel) {
+        fileLabel.textContent = `📁 ${file.name} (${formatFileSize(file.size)})`;
+    }
+    
+    if (uploadArea) {
+        uploadArea.classList.add('file-selected');
+        uploadArea.innerHTML = `
+            <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+            <h6 class="text-success">File Selected Successfully!</h6>
+            <p class="text-muted mb-0">${file.name}</p>
+            <small class="text-muted">${formatFileSize(file.size)}</small>
         `;
     }
+    
+    showNotification(`File "${file.name}" selected successfully!`, 'success');
 }
 
-// ===== ANIMATION FUNCTIONS =====
-function addFadeInAnimation() {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            card.style.transition = 'all 0.6s ease-out';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Data Source Toggle
+function initializeDataSourceToggle() {
+    const dataSourceRadios = document.querySelectorAll('input[name="dataSource"]');
+    const uploadSection = document.getElementById('uploadSection');
+    
+    dataSourceRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'upload') {
+                uploadSection.style.display = 'block';
+                uploadSection.classList.add('fade-in-up');
+            } else {
+                uploadSection.style.display = 'none';
+            }
+        });
     });
 }
 
-// ===== UTILITY FUNCTIONS =====
-function showNotification(message, type = 'info') {
-    const alertClass = type === 'error' ? 'alert-danger' : 
-                      type === 'success' ? 'alert-success' : 'alert-info';
+// Progress Tracking
+function initializeProgressTracking() {
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
     
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
-    alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 1050; max-width: 300px;';
-    alertDiv.innerHTML = `
-        <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 
-                          type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+    if (progressBar && progressText) {
+        // Simulate progress updates
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 10;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+            }
+            
+            progressBar.style.width = progress + '%';
+            progressBar.setAttribute('aria-valuenow', progress);
+            
+            if (progress < 30) {
+                progressText.textContent = '📥 Fetching dataset...';
+            } else if (progress < 60) {
+                progressText.textContent = '🧹 Cleaning data...';
+            } else if (progress < 90) {
+                progressText.textContent = '🎯 Running segmentation...';
+            } else {
+                progressText.textContent = '✅ Analysis completed!';
+            }
+        }, 500);
+    }
+}
+
+// Run Analysis Function
+function runAnalysis() {
+    const form = document.getElementById('segmentationForm');
+    const progressSection = document.getElementById('progressSection');
+    const resultsSection = document.getElementById('resultsSection');
+    
+    if (!form) return;
+    
+    // Show progress section
+    if (progressSection) {
+        progressSection.style.display = 'block';
+        progressSection.classList.add('fade-in-up');
+    }
+    
+    // Hide results section
+    if (resultsSection) {
+        resultsSection.style.display = 'none';
+    }
+    
+    // Get form data
+    const formData = new FormData(form);
+    
+    // Show loading state
+    showNotification('🚀 Starting analysis...', 'info');
+    
+    // Send AJAX request
+    fetch('/run_segmentation', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('✅ Analysis started successfully!', 'success');
+            pollAnalysisProgress();
+        } else {
+            showNotification('❌ Error starting analysis: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('❌ Network error occurred', 'danger');
+    });
+}
+
+// Poll for analysis progress
+function pollAnalysisProgress() {
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const resultsSection = document.getElementById('resultsSection');
+    
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes max
+    
+    const poll = () => {
+        fetch('/api/analysis-progress')
+            .then(response => response.json())
+            .then(data => {
+                attempts++;
+                
+                if (data.status === 'completed') {
+                    // Analysis completed
+                    if (progressBar) progressBar.style.width = '100%';
+                    if (progressText) progressText.textContent = '✅ Analysis completed!';
+                    
+                    showNotification('🎉 Analysis completed successfully!', 'success');
+                    
+                    // Show results after a short delay
+                    setTimeout(() => {
+                        if (resultsSection) {
+                            resultsSection.style.display = 'block';
+                            resultsSection.classList.add('fade-in-up');
+                        }
+                        loadResults();
+                    }, 1000);
+                    
+                } else if (data.status === 'processing') {
+                    // Still processing
+                    const progress = Math.min(90, 30 + (attempts * 2));
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    
+                    if (attempts < maxAttempts) {
+                        setTimeout(poll, 2000); // Poll every 2 seconds
+                    } else {
+                        showNotification('⏰ Analysis is taking longer than expected...', 'warning');
+                    }
+                    
+                } else {
+                    // Not started or error
+                    if (attempts < maxAttempts) {
+                        setTimeout(poll, 3000); // Poll every 3 seconds
+                    } else {
+                        showNotification('❌ Analysis failed to start', 'danger');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Polling error:', error);
+                if (attempts < maxAttempts) {
+                    setTimeout(poll, 5000); // Poll every 5 seconds on error
+                }
+            });
+    };
+    
+    poll();
+}
+
+// Load Results
+function loadResults() {
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    if (!resultsContainer) return;
+    
+    fetch('/api/results')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayResults(data.results);
+            } else {
+                showNotification('❌ Error loading results', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading results:', error);
+            showNotification('❌ Network error loading results', 'danger');
+        });
+}
+
+// Display Results
+function displayResults(results) {
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    if (!resultsContainer) return;
+    
+    resultsContainer.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-success">
+                    <h5><i class="fas fa-check-circle me-2"></i>Analysis Summary</h5>
+                    <p class="mb-0">Total customers: ${results.total_customers || 'N/A'}</p>
+                    <p class="mb-0">Segments: ${results.n_clusters || 'N/A'}</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Segment Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Segment</th>
+                                        <th>Count</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${Object.entries(results.cluster_sizes || {}).map(([segment, count]) => `
+                                        <tr>
+                                            <td><span class="badge bg-primary">${segment}</span></td>
+                                            <td>${count}</td>
+                                            <td>${((count / results.total_customers) * 100).toFixed(1)}%</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Notification System
+function initializeNotifications() {
+    // Create notification container if it doesn't exist
+    if (!document.getElementById('notificationContainer')) {
+        const container = document.createElement('div');
+        container.id = 'notificationContainer';
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        `;
+        document.body.appendChild(container);
+    }
+}
+
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+    
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show`;
+    notification.style.cssText = `
+        margin-bottom: 10px;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        border: none;
+        border-radius: 8px;
+    `;
+    
+    notification.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     
-    document.body.appendChild(alertDiv);
+    container.appendChild(notification);
     
-    // Auto-dismiss after 4 seconds
+    // Auto-remove after 5 seconds
     setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
+        if (notification.parentNode) {
+            notification.remove();
         }
-    }, 4000);
+    }, 5000);
 }
 
-function initializeTooltips() {
+// Page-specific initializations
+function initializeSegmentationPage() {
+    console.log('📊 Segmentation page initialized');
+    
+    // Add form submission handler
+    const form = document.getElementById('segmentationForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            runAnalysis();
+        });
+    }
+    
+    // Add reset functionality
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetForm);
+    }
+}
+
+function initializeResultsPage() {
+    console.log('📈 Results page initialized');
+    
+    // Add animation classes
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('fade-in-up');
+    });
+    
+    // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 }
 
-function addSmoothScrolling() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-}
-
-// ===== EXPORT FUNCTIONS (Placeholders for Phase 5) =====
-function downloadReport() {
-    showNotification('Report download functionality will be implemented in Phase 5', 'info');
-}
-
-function exportData() {
-    showNotification('Data export functionality will be implemented in Phase 5', 'info');
-}
-
-function shareResults() {
-    showNotification('Share functionality will be implemented in Phase 5', 'info');
-}
-
-function previewCampaign() {
-    const segment = document.getElementById('segmentSelect')?.value || 'loyal';
-    const campaigns = {
-        'loyal': 'Exclusive VIP offer: 15% off next purchase + free shipping',
-        'regular': 'Special discount: 10% off on orders over $100',
-        'at-risk': 'We miss you! 20% off to welcome you back',
-        'inactive': 'Reactivation offer: 25% off + free gift with purchase'
-    };
+// Reset Form
+function resetForm() {
+    const form = document.getElementById('segmentationForm');
+    const uploadArea = document.getElementById('uploadArea');
+    const progressSection = document.getElementById('progressSection');
+    const resultsSection = document.getElementById('resultsSection');
     
-    showNotification(`Campaign for ${segment} customers: ${campaigns[segment]}`, 'info');
-}
-
-// ===== PROGRESS SIMULATION =====
-function simulateProgress(progressBar, progressText, callback) {
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        progressBar.style.width = progress + '%';
-        progressBar.textContent = progress + '%';
-        
-        if (progress >= 100) {
-            clearInterval(interval);
-            progressText.textContent = 'Analysis complete!';
-            if (callback) callback();
-        } else if (progress < 30) {
-            progressText.textContent = 'Loading and cleaning data...';
-        } else if (progress < 60) {
-            progressText.textContent = 'Calculating RFM metrics...';
-        } else if (progress < 90) {
-            progressText.textContent = 'Running clustering analysis...';
-        } else {
-            progressText.textContent = 'Generating visualizations...';
-        }
-    }, 200);
-}
-
-// ===== UTILITY FUNCTIONS =====
-function formatNumber(num) {
-    return new Intl.NumberFormat().format(num);
-}
-
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    }).format(amount);
-}
-
-function formatDate(date) {
-    return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }).format(new Date(date));
-}
-
-// ===== ERROR HANDLING =====
-window.addEventListener('error', function(e) {
-    console.error('JavaScript Error:', e.error);
-    showNotification('An error occurred. Please try again.', 'error');
-});
-
-// ===== PAGE VISIBILITY API =====
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        console.log('Page hidden');
-    } else {
-        console.log('Page visible');
+    if (form) {
+        form.reset();
     }
-});
+    
+    if (uploadArea) {
+        uploadArea.classList.remove('file-selected');
+        uploadArea.innerHTML = `
+            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+            <h5>Drag & Drop your file here</h5>
+            <p class="text-muted">or click to browse</p>
+            <small class="text-muted">Supports CSV, XLSX files</small>
+        `;
+    }
+    
+    if (progressSection) {
+        progressSection.style.display = 'none';
+    }
+    
+    if (resultsSection) {
+        resultsSection.style.display = 'none';
+    }
+    
+    showNotification('🔄 Form reset successfully!', 'info');
+}
 
-// Export functions for use in templates
+// Utility Functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Export functions for global access
 window.JanahSegmentation = {
+    runAnalysis,
+    resetForm,
     showNotification,
-    downloadReport,
-    exportData,
-    shareResults,
-    previewCampaign,
-    simulateProgress,
-    formatNumber,
-    formatCurrency,
-    formatDate
+    handleFileSelection
 };
