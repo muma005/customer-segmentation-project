@@ -298,6 +298,83 @@ def create_visualizations(rfm_data):
         rfm_data (pd.DataFrame): RFM data with cluster labels
     """
     try:
+        print("📈 Creating visualizations...")
+        
+        # Set style for plots
+        plt.style.use('default')
+        sns.set_palette("husl")
+        
+        # Create output directory for plots
+        plots_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'processed', 'plots')
+        os.makedirs(plots_dir, exist_ok=True)
+        
+        # Create subplots
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        
+        # 1. RFM Distribution Histograms
+        axes[0, 0].hist(rfm_data['Recency'], bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+        axes[0, 0].set_title('Recency Distribution')
+        axes[0, 0].set_xlabel('Days Since Last Purchase')
+        axes[0, 0].set_ylabel('Number of Customers')
+        axes[0, 0].grid(True, alpha=0.3)
+        
+        axes[0, 1].hist(rfm_data['Monetary'], bins=30, alpha=0.7, color='lightgreen', edgecolor='black')
+        axes[0, 1].set_title('Monetary Distribution')
+        axes[0, 1].set_xlabel('Total Spending ($)')
+        axes[0, 1].set_ylabel('Number of Customers')
+        axes[0, 1].grid(True, alpha=0.3)
+        
+        # 2. Scatter plot: Recency vs Monetary (colored by cluster)
+        scatter = axes[1, 0].scatter(rfm_data['Recency'], rfm_data['Monetary'], 
+                                   c=rfm_data['Cluster'], cmap='viridis', alpha=0.6)
+        axes[1, 0].set_title('Recency vs Monetary (Colored by Cluster)')
+        axes[1, 0].set_xlabel('Recency (Days)')
+        axes[1, 0].set_ylabel('Monetary ($)')
+        axes[1, 0].grid(True, alpha=0.3)
+        plt.colorbar(scatter, ax=axes[1, 0], label='Cluster')
+        
+        # 3. Frequency vs Monetary scatter plot
+        scatter2 = axes[1, 1].scatter(rfm_data['Frequency'], rfm_data['Monetary'], 
+                                    c=rfm_data['Cluster'], cmap='viridis', alpha=0.6)
+        axes[1, 1].set_title('Frequency vs Monetary (Colored by Cluster)')
+        axes[1, 1].set_xlabel('Frequency (Number of Transactions)')
+        axes[1, 1].set_ylabel('Monetary ($)')
+        axes[1, 1].grid(True, alpha=0.3)
+        plt.colorbar(scatter2, ax=axes[1, 1], label='Cluster')
+        
+        plt.tight_layout()
+        
+        # Save the plot
+        plot_path = os.path.join(plots_dir, 'rfm_analysis.png')
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # Create cluster distribution pie chart
+        fig2, ax = plt.subplots(figsize=(10, 6))
+        cluster_counts = rfm_data['Cluster'].value_counts()
+        colors = plt.cm.Set3(np.linspace(0, 1, len(cluster_counts)))
+        
+        wedges, texts, autotexts = ax.pie(cluster_counts.values, labels=[f'Cluster {i}' for i in cluster_counts.index], 
+                                         autopct='%1.1f%%', colors=colors, startangle=90)
+        ax.set_title('Customer Distribution by Cluster')
+        
+        # Save the pie chart
+        pie_path = os.path.join(plots_dir, 'cluster_distribution.png')
+        plt.savefig(pie_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print("✅ Visualizations created successfully!")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error creating visualizations: {str(e)}")
+        return False
+
+def create_visualizations_streamlit(rfm_data):
+    """
+    Streamlit version of create_visualizations for when running in Streamlit context
+    """
+    try:
         st.info("📈 Creating visualizations...")
         
         # Set style for plots
@@ -570,8 +647,21 @@ The Janah Hardware Team
     
     return template
 
+def is_streamlit_context():
+    """Check if we're running in Streamlit context"""
+    try:
+        import streamlit as st
+        return True
+    except ImportError:
+        return False
+
 def main():
     """Main Streamlit application"""
+    
+    # Check if we're in Streamlit context
+    if not is_streamlit_context():
+        print("Running in non-Streamlit context (background processing)")
+        return
     
     # Header
     st.markdown("""
@@ -650,9 +740,9 @@ def main():
                 st.error("❌ Failed to perform clustering.")
                 return
             
-            # Step 4: Create visualizations
+            # Step 4: Create visualizations (use Streamlit version)
             if show_visualizations:
-                create_visualizations(clustered_data)
+                create_visualizations_streamlit(clustered_data)
             
             # Step 5: Display results
             st.subheader("📊 Analysis Results")

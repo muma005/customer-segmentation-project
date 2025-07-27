@@ -64,10 +64,44 @@
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
+                        {% if analysis_summary %}
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="text-center">
+                                    <h6 class="mb-3">RFM Analysis Overview</h6>
+                                    <img src="{{ url_for('main.serve_plot', filename='rfm_analysis.png') }}" 
+                                         class="img-fluid border rounded" 
+                                         alt="RFM Analysis"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div class="text-muted" style="display: none;">
+                                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                                        <p>RFM Analysis Chart</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="text-center">
+                                    <h6 class="mb-3">Cluster Distribution</h6>
+                                    <img src="{{ url_for('main.serve_plot', filename='cluster_distribution.png') }}" 
+                                         class="img-fluid border rounded" 
+                                         alt="Cluster Distribution"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div class="text-muted" style="display: none;">
+                                        <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                                        <p>Cluster Distribution Chart</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
                         <div class="text-center py-5">
                             <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Charts will be displayed here after analysis completion</p>
+                            <a href="{{ url_for('main.segmentation') }}" class="btn btn-primary">
+                                <i class="fas fa-play me-2"></i>Run Analysis
+                            </a>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

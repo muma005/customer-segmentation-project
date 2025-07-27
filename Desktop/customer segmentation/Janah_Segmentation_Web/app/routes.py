@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session, send_file
 import pandas as pd
 import os
 import requests
@@ -139,32 +139,60 @@ from streamlit.segmentation import load_and_clean_data, calculate_rfm, perform_c
 import pandas as pd
 import json
 
+print("Starting analysis...")
+
 # Load and process data
+print("Loading and cleaning data...")
 data = load_and_clean_data('{dataset_path}')
 if data is not None:
+    print(f"Data loaded successfully: {{len(data)}} rows")
+    
+    print("Calculating RFM metrics...")
     rfm_data = calculate_rfm(data)
     if rfm_data is not None:
+        print(f"RFM calculated successfully: {{len(rfm_data)}} customers")
+        
+        print("Performing clustering...")
         clustered_data, optimal_clusters, model = perform_clustering(rfm_data, {analysis_params.get('num_clusters', 4)})
         if clustered_data is not None:
+            print(f"Clustering completed: {{optimal_clusters}} clusters")
+            
+            # Create output directory
+            output_dir = 'data/processed'
+            os.makedirs(output_dir, exist_ok=True)
+            
             # Save results
-            output_path = 'data/processed/rfm_clustered.csv'
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            output_path = os.path.join(output_dir, 'rfm_clustered.csv')
             clustered_data.to_csv(output_path, index=False)
+            print(f"Results saved to: {{output_path}}")
+            
+            # Try to create visualizations (non-Streamlit version)
+            try:
+                print("Creating visualizations...")
+                viz_success = create_visualizations(clustered_data)
+                if viz_success:
+                    print("Visualizations created successfully")
+                else:
+                    print("Visualization creation failed, but continuing...")
+            except Exception as viz_error:
+                print(f"Visualization error (non-critical): {{viz_error}}")
             
             # Save analysis summary
             summary = {{
                 'total_customers': len(clustered_data),
                 'num_clusters': optimal_clusters,
-                'avg_recency': clustered_data['Recency'].mean(),
-                'avg_frequency': clustered_data['Frequency'].mean(),
-                'avg_monetary': clustered_data['Monetary'].mean(),
+                'avg_recency': float(clustered_data['Recency'].mean()),
+                'avg_frequency': float(clustered_data['Frequency'].mean()),
+                'avg_monetary': float(clustered_data['Monetary'].mean()),
                 'cluster_sizes': clustered_data['Cluster'].value_counts().to_dict(),
                 'timestamp': '{datetime.now().isoformat()}'
             }}
             
-            with open('data/processed/analysis_summary.json', 'w') as f:
+            summary_path = os.path.join(output_dir, 'analysis_summary.json')
+            with open(summary_path, 'w') as f:
                 json.dump(summary, f)
             
+            print(f"Analysis summary saved to: {{summary_path}}")
             print("Analysis completed successfully")
         else:
             print("Clustering failed")
@@ -179,10 +207,17 @@ else:
         with open(script_path, 'w') as f:
             f.write(script_content)
         
+        print(f"Analysis script created: {script_path}")
+        
         # Run the analysis
         result = subprocess.run(['python', script_path], 
                               capture_output=True, text=True, 
                               cwd=os.path.join(current_app.root_path, '..'))
+        
+        print(f"Analysis process completed with return code: {result.returncode}")
+        print(f"STDOUT: {result.stdout}")
+        if result.stderr:
+            print(f"STDERR: {result.stderr}")
         
         # Clean up
         if os.path.exists(script_path):
@@ -335,6 +370,20 @@ def run_segmentation():
         error_msg = f'Unexpected error: {str(e)}'
         print(f"Exception in run_segmentation: {error_msg}")
         return jsonify({'success': False, 'error': error_msg})
+
+@main.route('/api/plots/<filename>')
+def serve_plot(filename):
+    """Serve generated plot images"""
+    try:
+        plots_dir = os.path.join(current_app.root_path, '..', 'data', 'processed', 'plots')
+        plot_path = os.path.join(plots_dir, filename)
+        
+        if os.path.exists(plot_path):
+            return send_file(plot_path, mimetype='image/png')
+        else:
+            return jsonify({'error': 'Plot not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @main.route('/api/test')
 def test_api():
