@@ -1,6 +1,7 @@
 # Flask and Web Framework
 Flask==2.3.3
 Werkzeug==2.3.7
+gunicorn==21.2.0
 
 # Data Science and Analysis
 pandas==2.1.1
@@ -10,7 +11,6 @@ scikit-learn==1.3.0
 # Visualization
 matplotlib==3.7.2
 seaborn==0.12.2
-plotly==5.16.1
 
 # File Processing
 openpyxl==3.1.2
