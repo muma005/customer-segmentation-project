@@ -3,29 +3,104 @@
 {% block title %}Home - Janah Customer Segmentation{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <h1>Welcome to Janah Customer Segmentation</h1>
-        <p class="lead">Analyze and segment your customers with advanced machine learning techniques.</p>
-        
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Upload Data</h5>
-                        <p class="card-text">Upload your customer data for analysis.</p>
-                        <a href="{{ url_for('main.segmentation') }}" class="btn btn-primary">Get Started</a>
+<div class="hero-section text-center mb-5">
+    <div class="hero-content">
+        <h1 class="display-4 fw-bold text-primary mb-3">
+            <i class="fas fa-chart-pie me-3"></i>
+            Welcome to Janah Customer Segmentation
+        </h1>
+        <p class="lead text-muted mb-4">
+            Analyze and segment your customers with advanced machine learning techniques using RFM analysis and K-means clustering.
+        </p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('main.segmentation') }}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-play me-2"></i>Start Analysis
+            </a>
+            <a href="{{ url_for('main.results') }}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-chart-bar me-2"></i>View Results
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="features-section">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-database fa-3x text-primary"></i>
                     </div>
+                    <h5 class="card-title fw-bold">Data Processing</h5>
+                    <p class="card-text text-muted">
+                        Upload your customer data or use our default Online Retail dataset. 
+                        Automatic cleaning and preprocessing included.
+                    </p>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">View Results</h5>
-                        <p class="card-text">View your segmentation results and insights.</p>
-                        <a href="{{ url_for('main.results') }}" class="btn btn-outline-primary">View Results</a>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-3x text-success"></i>
                     </div>
+                    <h5 class="card-title fw-bold">Customer Segmentation</h5>
+                    <p class="card-text text-muted">
+                        Advanced RFM analysis with K-means clustering to identify 
+                        customer segments and behavior patterns.
+                    </p>
                 </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="feature-card card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chart-line fa-3x text-info"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Visualization & Insights</h5>
+                    <p class="card-text text-muted">
+                        Interactive charts and detailed reports to understand 
+                        your customer segments and drive business decisions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="quick-start-section mt-5">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-rocket me-2"></i>
+                Quick Start Guide
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="fw-bold text-primary">Step 1: Upload Data</h6>
+                    <p class="text-muted">Upload your CSV file or use our default dataset</p>
+                    
+                    <h6 class="fw-bold text-primary">Step 2: Configure Analysis</h6>
+                    <p class="text-muted">Set segmentation parameters and run the analysis</p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="fw-bold text-primary">Step 3: View Results</h6>
+                    <p class="text-muted">Explore visualizations and segment insights</p>
+                    
+                    <h6 class="fw-bold text-primary">Step 4: Export & Share</h6>
+                    <p class="text-muted">Download reports and share results with your team</p>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('main.segmentation') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right me-2"></i>Get Started Now
+                </a>
             </div>
         </div>
     </div>

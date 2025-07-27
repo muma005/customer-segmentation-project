@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Segmentation - Janah Customer Segmentation{% endblock %}
+
+{% block content %}
+<div class="segmentation-header text-center mb-5">
+    <h1 class="display-5 fw-bold text-primary mb-3">
+        <i class="fas fa-users me-3"></i>
+        Customer Segmentation Analysis
+    </h1>
+    <p class="lead text-muted">
+        Upload your customer data and configure segmentation parameters to identify customer segments.
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>
+                    Analysis Configuration
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data" id="segmentationForm">
+                    <!-- Data Source Selection -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-primary mb-3">
+                            <i class="fas fa-database me-2"></i>
+                            Data Source
+                        </h5>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="dataSource" id="defaultData" value="default" checked>
+                            <label class="form-check-label" for="defaultData">
+                                <strong>Use Default Dataset</strong> - Online Retail dataset from UCI Repository
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dataSource" id="uploadData" value="upload">
+                            <label class="form-check-label" for="uploadData">
+                                <strong>Upload Custom Dataset</strong> - Upload your own CSV/XLSX file
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div class="mb-4" id="fileUploadSection" style="display: none;">
+                        <h5 class="fw-bold text-primary mb-3">
+                            <i class="fas fa-upload me-2"></i>
+                            Upload Dataset
+                        </h5>
+                        <div class="upload-area border-2 border-dashed border-primary rounded p-4 text-center">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <p class="mb-2">Drag and drop your file here or click to browse</p>
+                            <input type="file" class="form-control" id="file" name="file" accept=".csv,.xlsx,.xls" style="display: none;">
+                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('file').click()">
+                                <i class="fas fa-folder-open me-2"></i>Choose File
+                            </button>
+                            <div id="fileInfo" class="mt-2 text-muted"></div>
+                        </div>
+                    </div>
+
+                    <!-- Segmentation Parameters -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-primary mb-3">
+                            <i class="fas fa-sliders-h me-2"></i>
+                            Segmentation Parameters
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="numClusters" class="form-label fw-bold">Number of Clusters</label>
+                                <select class="form-select" id="numClusters" name="numClusters">
+                                    <option value="3">3 Segments</option>
+                                    <option value="4" selected>4 Segments</option>
+                                    <option value="5">5 Segments</option>
+                                    <option value="6">6 Segments</option>
+                                </select>
+                                <div class="form-text">Recommended: 4 segments for optimal analysis</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="analysisType" class="form-label fw-bold">Analysis Type</label>
+                                <select class="form-select" id="analysisType" name="analysisType">
+                                    <option value="rfm" selected>RFM Analysis</option>
+                                    <option value="custom">Custom Features</option>
+                                </select>
+                                <div class="form-text">RFM: Recency, Frequency, Monetary</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Options -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-primary mb-3">
+                            <i class="fas fa-tools me-2"></i>
+                            Advanced Options
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="removeOutliers" name="removeOutliers" checked>
+                                    <label class="form-check-label" for="removeOutliers">
+                                        Remove Outliers (IQR Method)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="normalizeData" name="normalizeData" checked>
+                                    <label class="form-check-label" for="normalizeData">
+                                        Normalize Data (StandardScaler)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg me-3" id="runAnalysisBtn">
+                            <i class="fas fa-play me-2"></i>Run Analysis
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                            <i class="fas fa-redo me-2"></i>Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Progress Section (Hidden by default) -->
+        <div class="card border-0 shadow-sm mt-4" id="progressSection" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Analysis in Progress
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="progress mb-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%" id="progressBar">0%</div>
+                </div>
+                <p class="text-muted mb-0" id="progressText">Initializing analysis...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// File upload handling
+document.getElementById('file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        document.getElementById('fileInfo').innerHTML = 
+            `<i class="fas fa-file me-1"></i>Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+    }
+});
+
+// Data source toggle
+document.querySelectorAll('input[name="dataSource"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const fileSection = document.getElementById('fileUploadSection');
+        if (this.value === 'upload') {
+            fileSection.style.display = 'block';
+        } else {
+            fileSection.style.display = 'none';
+        }
+    });
+});
+
+// Form submission
+document.getElementById('segmentationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Show progress section
+    document.getElementById('progressSection').style.display = 'block';
+    document.getElementById('runAnalysisBtn').disabled = true;
+    
+    // Simulate progress (will be replaced with actual progress in Phase 3)
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    
+    const interval = setInterval(() => {
+        progress += 10;
+        progressBar.style.width = progress + '%';
+        progressBar.textContent = progress + '%';
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            progressText.textContent = 'Analysis complete! Redirecting to results...';
+            setTimeout(() => {
+                window.location.href = "{{ url_for('main.results') }}";
+            }, 1000);
+        } else if (progress < 30) {
+            progressText.textContent = 'Loading and cleaning data...';
+        } else if (progress < 60) {
+            progressText.textContent = 'Calculating RFM metrics...';
+        } else if (progress < 90) {
+            progressText.textContent = 'Running clustering analysis...';
+        } else {
+            progressText.textContent = 'Generating visualizations...';
+        }
+    }, 200);
+});
+
+function resetForm() {
+    document.getElementById('segmentationForm').reset();
+    document.getElementById('fileUploadSection').style.display = 'none';
+    document.getElementById('fileInfo').innerHTML = '';
+    document.getElementById('progressSection').style.display = 'none';
+    document.getElementById('runAnalysisBtn').disabled = false;
+}
+</script>
+{% endblock %}

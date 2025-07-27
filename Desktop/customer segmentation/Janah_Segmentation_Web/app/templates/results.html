@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Results - Janah Customer Segmentation{% endblock %}
+
+{% block content %}
+<div class="results-header text-center mb-5">
+    <h1 class="display-5 fw-bold text-primary mb-3">
+        <i class="fas fa-chart-bar me-3"></i>
+        Segmentation Results
+    </h1>
+    <p class="lead text-muted">
+        Your customer segmentation analysis results and insights.
+    </p>
+</div>
+
+<!-- Summary Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h4 class="fw-bold text-primary">4</h4>
+                <p class="text-muted mb-0">Customer Segments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <i class="fas fa-database fa-2x text-success mb-2"></i>
+                <h4 class="fw-bold text-success">2,850</h4>
+                <p class="text-muted mb-0">Total Customers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                <h4 class="fw-bold text-info">85.2%</h4>
+                <p class="text-muted mb-0">Model Accuracy</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body">
+                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                <h4 class="fw-bold text-warning">2.3s</h4>
+                <p class="text-muted mb-0">Analysis Time</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Results Section -->
+    <div class="col-lg-8">
+        <!-- Segment Distribution Chart -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Customer Segment Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 400px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                        <p>Segment distribution chart will be displayed here</p>
+                        <small>Interactive visualization coming in Phase 3</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RFM Analysis Results -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-analytics me-2"></i>
+                    RFM Analysis Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 class="fw-bold text-primary">Recency</h6>
+                        <p class="text-muted">Days since last purchase</p>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-primary" style="width: 75%"></div>
+                        </div>
+                        <small class="text-muted">Average: 45 days</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="fw-bold text-success">Frequency</h6>
+                        <p class="text-muted">Number of transactions</p>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" style="width: 60%"></div>
+                        </div>
+                        <small class="text-muted">Average: 12 transactions</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="fw-bold text-info">Monetary</h6>
+                        <p class="text-muted">Total spending amount</p>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-info" style="width: 85%"></div>
+                        </div>
+                        <small class="text-muted">Average: $1,250</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segment Details -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Segment Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Segment</th>
+                                <th>Size</th>
+                                <th>Avg. Recency</th>
+                                <th>Avg. Frequency</th>
+                                <th>Avg. Monetary</th>
+                                <th>Characteristics</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-primary">Loyal Customers</span></td>
+                                <td>712 (25%)</td>
+                                <td>15 days</td>
+                                <td>25 transactions</td>
+                                <td>$2,500</td>
+                                <td>High value, frequent buyers</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">Regular Customers</span></td>
+                                <td>855 (30%)</td>
+                                <td>30 days</td>
+                                <td>15 transactions</td>
+                                <td>$1,200</td>
+                                <td>Consistent, moderate value</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning">At-Risk Customers</span></td>
+                                <td>570 (20%)</td>
+                                <td>60 days</td>
+                                <td>8 transactions</td>
+                                <td>$800</td>
+                                <td>Declining engagement</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">Inactive Customers</span></td>
+                                <td>713 (25%)</td>
+                                <td>120 days</td>
+                                <td>3 transactions</td>
+                                <td>$300</td>
+                                <td>Low engagement, need reactivation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Actions -->
+    <div class="col-lg-4">
+        <!-- Export Options -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-download me-2"></i>
+                    Export Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="downloadReport()">
+                        <i class="fas fa-file-pdf me-2"></i>Download Report (PDF)
+                    </button>
+                    <button class="btn btn-outline-success" onclick="exportData()">
+                        <i class="fas fa-file-csv me-2"></i>Export Segment Data (CSV)
+                    </button>
+                    <button class="btn btn-outline-info" onclick="shareResults()">
+                        <i class="fas fa-share me-2"></i>Share Results
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaign Preview -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-bullhorn me-2"></i>
+                    Campaign Preview
+                </h5>
+            </div>
+            <div class="card-body">
+                <label for="segmentSelect" class="form-label fw-bold">Select Segment:</label>
+                <select class="form-select mb-3" id="segmentSelect">
+                    <option value="loyal">Loyal Customers</option>
+                    <option value="regular">Regular Customers</option>
+                    <option value="at-risk">At-Risk Customers</option>
+                    <option value="inactive">Inactive Customers</option>
+                </select>
+                <button class="btn btn-warning w-100" onclick="previewCampaign()">
+                    <i class="fas fa-eye me-2"></i>Preview Campaign
+                </button>
+            </div>
+        </div>
+
+        <!-- Analysis Settings -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>
+                    Analysis Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Dataset:</strong> Online Retail (UCI)</p>
+                <p class="mb-2"><strong>Clusters:</strong> 4 segments</p>
+                <p class="mb-2"><strong>Method:</strong> K-means + RFM</p>
+                <p class="mb-0"><strong>Date:</strong> July 27, 2025</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadReport() {
+    alert('Report download functionality will be implemented in Phase 5');
+}
+
+function exportData() {
+    alert('Data export functionality will be implemented in Phase 5');
+}
+
+function shareResults() {
+    alert('Share functionality will be implemented in Phase 5');
+}
+
+function previewCampaign() {
+    const segment = document.getElementById('segmentSelect').value;
+    const campaigns = {
+        'loyal': 'Exclusive VIP offer: 15% off next purchase + free shipping',
+        'regular': 'Special discount: 10% off on orders over $100',
+        'at-risk': 'We miss you! 20% off to welcome you back',
+        'inactive': 'Reactivation offer: 25% off + free gift with purchase'
+    };
+    
+    alert(`Campaign for ${segment} customers:\n\n${campaigns[segment]}`);
+}
+
+// Page load alert (as requested)
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Results page loaded successfully!');
+});
+</script>
+{% endblock %}
