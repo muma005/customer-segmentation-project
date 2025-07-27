@@ -220,6 +220,10 @@ function runAnalysis() {
     
     const progressInterval = setInterval(() => {
         progress += 5;
+        // Fix: Cap progress at 90% to leave room for actual completion
+        if (progress > 90) {
+            progress = 90;
+        }
         progressBar.style.width = progress + '%';
         progressBar.textContent = progress + '%';
         
@@ -250,13 +254,15 @@ function runAnalysis() {
             pollAnalysisProgress(progressInterval);
         } else {
             clearInterval(progressInterval);
-            progressText.textContent = 'Analysis failed: ' + data.error;
+            // Fix: Handle undefined error messages
+            const errorMsg = data.error || 'Unknown error occurred';
+            progressText.textContent = 'Analysis failed: ' + errorMsg;
             document.getElementById('runAnalysisBtn').disabled = false;
         }
     })
     .catch(error => {
         clearInterval(progressInterval);
-        progressText.textContent = 'Error: ' + error.message;
+        progressText.textContent = 'Network error: ' + error.message;
         document.getElementById('runAnalysisBtn').disabled = false;
     });
 }
@@ -266,7 +272,12 @@ function pollAnalysisProgress(progressInterval) {
     const progressText = document.getElementById('progressText');
     const progressBar = document.getElementById('progressBar');
     
+    let attempts = 0;
+    const maxAttempts = 30; // 1 minute max
+    
     const pollInterval = setInterval(() => {
+        attempts++;
+        
         fetch('/api/analysis-progress')
         .then(response => response.json())
         .then(data => {
@@ -288,13 +299,29 @@ function pollAnalysisProgress(progressInterval) {
                 }, 2000);
                 
             } else if (data.status === 'processing') {
-                progressBar.style.width = data.progress + '%';
-                progressBar.textContent = data.progress + '%';
-                progressText.textContent = data.message;
+                // Fix: Ensure progress doesn't exceed 95%
+                const actualProgress = Math.min(95, data.progress || 75);
+                progressBar.style.width = actualProgress + '%';
+                progressBar.textContent = actualProgress + '%';
+                progressText.textContent = data.message || 'Processing...';
+            } else {
+                // Not started or error
+                if (attempts >= maxAttempts) {
+                    clearInterval(pollInterval);
+                    clearInterval(progressInterval);
+                    progressText.textContent = 'Analysis timeout - please try again';
+                    document.getElementById('runAnalysisBtn').disabled = false;
+                }
             }
         })
         .catch(error => {
             console.error('Error polling progress:', error);
+            if (attempts >= maxAttempts) {
+                clearInterval(pollInterval);
+                clearInterval(progressInterval);
+                progressText.textContent = 'Connection error - please try again';
+                document.getElementById('runAnalysisBtn').disabled = false;
+            }
         });
     }, 2000);
 }
